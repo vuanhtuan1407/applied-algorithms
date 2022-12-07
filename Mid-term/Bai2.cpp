@@ -4,63 +4,79 @@ using namespace std;
 
 struct Transaction {
     string from_acc, to_acc, time_point, atm;
-    long long money;
+    int money;
 };
 
-Transaction trans[10000];
+Transaction trans[10];
 
-long long total_transactions = 0;
-long long total_money = 0; 
-map<string, long long> money_from;
-map<string, bool> checked;
+int total_transactions = 0;
+int total_money = 0; 
+map<string, int> money_from;
+map<string, bool > checked;
 map<string, bool> visited;
 map<string, int> d;
-map<string, list<string>> from_to;
+map<string, vector<string>> from_to;
+vector<string> accounts;
 queue<string> qu;
 
-bool comp1(Transaction t1, Transaction t2){
-    return t1.from_acc <= t2.from_acc;
+bool comp(string acc1, string acc2){
+    return acc1 <= acc2;
 }
 
-bool comp2(Transaction t1, Transaction t2){
-    return t1.to_acc <= t2.to_acc;
+int BFS(string acc, int length) {
+    bool res = false;
+    qu.push(acc);
+    visited[acc] = true;
+    while (!qu.empty()) {
+        string u = qu.front();
+        qu.pop();
+        for (string v : from_to[u]) {
+            if (v == acc && d[u] == length){
+                res = true;
+                break;
+            }
+            else{
+                if (!visited[v]) {
+                d[v] = d[u]+1;
+                visited[v] = true;
+                qu.push(v);
+            }
+            }
+        }
+        if(res == true) break;
+    }
+
+    return (int)res;
 }
 
-// bool BFS(string acc) {
-//     bool res = false;
-//     qu.push(acc);
-//     visited[acc] = true;
-//     while (!qu.empty()) {
-//         string u = qu.front();
-//         qu.pop();
-//         for (auto v : from_to[u]) {
-//             if (!visited[v]) {
-//                 d[v] = d[u]+1;
-//                 visited[v] = true;
-//                 qu.push(v);
-//             }
-//         }
-//     }
-// }
-
-int main() {
+int main(int argc, char const *argv[]) {
     
     int i=0;
     while(true) {
 
-        cin >> trans[i].from_acc >> trans[i].to_acc >> trans[i].money >> trans[i].time_point >> trans[i].atm;
+        string from_acc, to_acc, time_point, atm;
+        int money;
 
-        if(trans[i].from_acc.length() >= 6 && trans[i].from_acc.length() <= 20 && trans[i].to_acc.length() >= 6 && trans[i].to_acc.length() <= 20) total_transactions++;
+        cin >> from_acc;
+        if (from_acc == "#") break;
+        cin >> to_acc >> money >> time_point >> atm;
 
-        from_to[trans[i].from_acc].push_back(trans[i].to_acc);
+        if(from_acc.length() >= 6 && from_acc.length() <= 20 && to_acc.length() >= 6 && to_acc.length() <= 20) total_transactions++;
 
-        total_money += trans[i].money;
+        if(checked[from_acc] == false){
+            accounts.push_back(from_acc);
+            checked[from_acc] = true;
+        }
+        if(checked[to_acc] == false){
+            accounts.push_back(to_acc);
+            checked[to_acc] = true;
+        }
 
-        money_from[trans[i].from_acc] += trans[i].money;
+        from_to[from_acc].push_back(to_acc);
 
-        fflush(stdin);
+        total_money += money;
 
-        if(getchar() == '#') break;
+        money_from[from_acc] += money;
 
     }
 
@@ -71,25 +87,12 @@ int main() {
         if(type == "?number_transactions"){
             cout << total_transactions << endl;
         }
-        else if(type == "?total_money_transactions"){
+        else if(type == "?total_money_transaction"){
             cout << total_money << endl;
         }
         else if(type == "?list_sorted_accounts"){
-            int i=0, k=0;
-            string sorted_account[100000];
-            sort(trans, trans+total_transactions-1, comp1);
-            while(i<total_transactions){
-                if(checked[trans[i].from_acc] == true) sorted_account[k++]=trans[i++].from_acc;
-                else i++;
-            }
-            i=0;
-            sort(trans, trans+total_transactions-1, comp2);
-            while(i<total_transactions){
-                if(checked[trans[i].to_acc] == true) sorted_account[k++]=trans[i++].to_acc;
-                else i++;
-            }
-            for(int i=0; i<total_transactions; i++) cout << sorted_account[i];
-
+            sort(accounts.begin(), accounts.end(), comp);
+            for(string acc: accounts) cout << acc << ' ';
         }
         else if(type == "?total_money_transaction_from"){
             string from_acc;
@@ -100,11 +103,9 @@ int main() {
             string acc;
             int length;
             cin >> acc >> length;
+            cout << BFS(acc, length);
         }
         else if(type == "#") break;
     }
-
-
-
     return 0;
 }
