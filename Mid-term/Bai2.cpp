@@ -16,37 +16,40 @@ map<string, bool > checked;
 map<string, bool> visited;
 map<string, int> d;
 map<string, vector<string>> from_to;
+
+map<pair<string, string>, bool> checked_from_to;
 vector<string> accounts;
-queue<string> qu;
 
 bool comp(string acc1, string acc2){
     return acc1 <= acc2;
 }
 
+bool find_acc(vector<string> accounts, string des){
+    for(string acc : accounts){
+        if(acc == des) return true;
+    }
+    return false;
+}
+
 int BFS(string acc, int length) {
     bool res = false;
+    queue<string> qu;
     qu.push(acc);
     visited[acc] = true;
     while (!qu.empty()) {
         string u = qu.front();
         qu.pop();
         for (string v : from_to[u]) {
-            if (v == acc && d[u] == length){
-                res = true;
-                break;
+            if (v == acc && d[u] == length-1){
+                return 1;
             }
-            else{
-                if (!visited[v]) {
+            else {
                 d[v] = d[u]+1;
-                visited[v] = true;
                 qu.push(v);
             }
-            }
         }
-        if(res == true) break;
     }
-
-    return (int)res;
+    return 0;   
 }
 
 int main(int argc, char const *argv[]) {
@@ -71,8 +74,8 @@ int main(int argc, char const *argv[]) {
             accounts.push_back(to_acc);
             checked[to_acc] = true;
         }
-
-        from_to[from_acc].push_back(to_acc);
+        
+        if(find_acc(from_to[from_acc], to_acc) == false) from_to[from_acc].push_back(to_acc);
 
         total_money += money;
 
@@ -93,6 +96,7 @@ int main(int argc, char const *argv[]) {
         else if(type == "?list_sorted_accounts"){
             sort(accounts.begin(), accounts.end(), comp);
             for(string acc: accounts) cout << acc << ' ';
+            cout << endl;
         }
         else if(type == "?total_money_transaction_from"){
             string from_acc;
@@ -103,7 +107,11 @@ int main(int argc, char const *argv[]) {
             string acc;
             int length;
             cin >> acc >> length;
-            cout << BFS(acc, length);
+            // for(string from_acc: accounts){
+            //     for(string acc: from_to[from_acc]) cout << acc << ' ';
+            //     cout << endl;
+            // }
+            cout << BFS(acc, length) << endl;
         }
         else if(type == "#") break;
     }
