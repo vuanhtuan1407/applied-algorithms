@@ -3,12 +3,6 @@
 
 using namespace std;
 
-struct TypeNode {
-    // đặc điểm của một node
-    int x;
-};
-
-TypeNode tnode[N];
 int d[N];
 map<int, bool> visited;
 vector<int> g[N];

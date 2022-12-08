@@ -2,13 +2,6 @@
 
 using namespace std;
 
-struct Transaction {
-    string from_acc, to_acc, time_point, atm;
-    int money;
-};
-
-Transaction trans[10];
-
 int total_transactions = 0;
 int total_money = 0; 
 map<string, int> money_from;
@@ -16,9 +9,8 @@ map<string, bool > checked;
 map<string, bool> visited;
 map<string, int> d;
 map<string, vector<string>> from_to;
-
-map<pair<string, string>, bool> checked_from_to;
 vector<string> accounts;
+bool res = false;
 
 bool comp(string acc1, string acc2){
     return acc1 <= acc2;
@@ -31,25 +23,27 @@ bool find_acc(vector<string> accounts, string des){
     return false;
 }
 
-int BFS(string acc, int length) {
-    bool res = false;
-    queue<string> qu;
-    qu.push(acc);
+void find_cycle(string acc, string des, int length) {
     visited[acc] = true;
-    while (!qu.empty()) {
-        string u = qu.front();
-        qu.pop();
-        for (string v : from_to[u]) {
-            if (v == acc && d[u] == length-1){
-                return 1;
-            }
-            else {
-                d[v] = d[u]+1;
-                qu.push(v);
+
+    if(length==0){
+        visited[acc] = false;
+        for(string v : from_to[acc]){
+            if(v == des){
+                res = true;
+                return;
             }
         }
     }
-    return 0;   
+
+    for(string v : from_to[acc]){
+        if(!visited[v]){
+            visited[v] = true;
+            find_cycle(v, des, length-1);
+        }
+    } 
+
+    visited[acc] = false;
 }
 
 int main(int argc, char const *argv[]) {
@@ -75,7 +69,7 @@ int main(int argc, char const *argv[]) {
             checked[to_acc] = true;
         }
         
-        if(find_acc(from_to[from_acc], to_acc) == false) from_to[from_acc].push_back(to_acc);
+        if(find_acc(from_to[from_acc], to_acc) == false && from_acc != to_acc) from_to[from_acc].push_back(to_acc);
 
         total_money += money;
 
@@ -107,11 +101,16 @@ int main(int argc, char const *argv[]) {
             string acc;
             int length;
             cin >> acc >> length;
+
             // for(string from_acc: accounts){
             //     for(string acc: from_to[from_acc]) cout << acc << ' ';
             //     cout << endl;
             // }
-            cout << BFS(acc, length) << endl;
+
+            // cout << find_cycle(acc, acc, length) << endl;
+
+            find_cycle(acc, acc, length);
+            cout << res << endl;
         }
         else if(type == "#") break;
     }
