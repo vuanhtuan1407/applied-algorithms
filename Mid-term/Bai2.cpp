@@ -1,4 +1,5 @@
 #include<bits/stdc++.h>
+#define N 100001
 
 using namespace std;
 
@@ -10,6 +11,7 @@ map<string, bool> visited;
 map<string, int> d;
 map<string, vector<string>> from_to;
 vector<string> accounts;
+string a[N];
 bool res = false;
 
 bool comp(string acc1, string acc2){
@@ -21,6 +23,11 @@ bool find_acc(vector<string> accounts, string des){
         if(acc == des) return true;
     }
     return false;
+}
+
+void print(){
+    for(int i=0; i<a->length(); i++) cout << a[i] << ' ';
+    cout << endl;
 }
 
 void find_cycle(string acc, string des, int length) {
@@ -108,8 +115,10 @@ int main(int argc, char const *argv[]) {
             // }
 
             // cout << find_cycle(acc, acc, length) << endl;
-
-            find_cycle(acc, acc, length);
+            
+            // reset res
+            res = false;
+            find_cycle(acc, acc, length-1);
             cout << res << endl;
         }
         else if(type == "#") break;
