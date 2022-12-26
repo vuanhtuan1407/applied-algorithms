@@ -38,12 +38,12 @@ void find_cycle(string acc, string des, int length) {
 
     for(string v : from_to[acc]){
         if(!visited[v]){
-            visited[v] = true;
             find_cycle(v, des, length-1);
         }
     } 
 
     visited[acc] = false;
+    return;
 }
 
 int main(int argc, char const *argv[]) {
